@@ -9,7 +9,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(config: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: config.get('JWT_SECRET'),
+      secretOrKey: config.getOrThrow<string>('JWT_SECRET'),
     });
   }
 
@@ -17,4 +17,4 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // this object request.user will be available in controllers after successful authentication
     return { userId: payload.sub, email: payload.email };
   }
-} 
+}

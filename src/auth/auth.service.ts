@@ -1,9 +1,9 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { Customer } from '../customers/customer.entity';
+import { Customer } from '../customer/customer.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { MailerService } from '../mailer/mailer.service';
@@ -11,6 +11,8 @@ import { MailerService } from '../mailer/mailer.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectRepository(Customer)
     private customerRepo: Repository<Customer>,
@@ -25,7 +27,7 @@ export class AuthService {
     if (exists) {
       throw new ConflictException('Email already in use');
     }
-// bycrypt password
+    // bycrypt password
 
 
     const saltRounds = 10;
@@ -37,10 +39,12 @@ export class AuthService {
       password: hashedPassword,
     });
     const saved = await this.customerRepo.save(customer);
-// welcome email
-    await this.mailerService.sendWelcomeEmail(saved.email, saved.name);
+    try {
+      await this.mailerService.sendWelcomeEmail(saved.email, saved.name);
+    } catch (error) {
+      this.logger.warn(`Welcome email could not be sent to ${saved.email}: ${error instanceof Error ? error.message : error}`);
+    }
 
-// wel
     const { password, ...result } = saved;
     return result;
 
@@ -64,7 +68,7 @@ export class AuthService {
     if (!isMatch) {
       throw new UnauthorizedException('Email বা Password ভুল');
     }
-// jwt token generate
+    // jwt token generate
 
     const payload = { sub: customer.id, email: customer.email };
     const token = this.jwtService.sign(payload);
@@ -73,4 +77,3 @@ export class AuthService {
     return { access_token: token, customerId: customer.id };
   }
 }
-

@@ -2,7 +2,7 @@ import {
   Controller, Get, Post, Put, Patch, Delete,
   Param, Body, UseGuards, ParseIntPipe, HttpCode, HttpStatus
 } from '@nestjs/common';
-import { CustomersService } from './customers.service';
+import { CustomerService } from './customer.service';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -10,21 +10,21 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @Controller('customers')
 @UseGuards(JwtAuthGuard) // all route in this controller are protected by JWT authentication
 
-export class CustomersController {
-  constructor(private customersService: CustomersService) { }
+export class CustomerController {
+  constructor(private customerService: CustomerService) { }
 
 
   // Route 3: GET /customers
   @Get()
   findAll() {
-    return this.customersService.findAll();
+    return this.customerService.findAll();
   }
 
 
   // Route 4: GET /customers/:id
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.customersService.findOne(id);
+    return this.customerService.findOne(id);
   }
 
 
@@ -32,14 +32,14 @@ export class CustomersController {
   // Route 5: GET /customers/:id/rentals (One-to-Many Relationship Route)
   @Get(':id/rentals')
   findWithRentals(@Param('id', ParseIntPipe) id: number) {
-    return this.customersService.findWithRentals(id);
+    return this.customerService.findWithRentals(id);
   }
 
 
   // Route 6: GET /customers/:id/favorites (Many-to-Many Relationship Route)
   @Get(':id/favorites')
   findWithFavorites(@Param('id', ParseIntPipe) id: number) {
-    return this.customersService.findWithFavorites(id);
+    return this.customerService.findWithFavorites(id);
   }
 
 
@@ -49,7 +49,7 @@ export class CustomersController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateCustomerDto,
   ) {
-    return this.customersService.update(id, dto);
+    return this.customerService.update(id, dto);
   }
 
 
@@ -59,7 +59,7 @@ export class CustomersController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateCustomerDto,
   ) {
-    return this.customersService.partialUpdate(id, dto);
+    return this.customerService.partialUpdate(id, dto);
   }
 
 
@@ -67,7 +67,7 @@ export class CustomersController {
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   remove(@Param('id', ParseIntPipe) id: number) {
-    return this.customersService.remove(id);
+    return this.customerService.remove(id);
   }
 
 
@@ -79,7 +79,7 @@ export class CustomersController {
     @Param('customerId', ParseIntPipe) customerId: number,
     @Param('equipmentId', ParseIntPipe) equipmentId: number,
   ) {
-    return this.customersService.addFavorite(customerId, equipmentId);
+    return this.customerService.addFavorite(customerId, equipmentId);
   }
 
 
@@ -89,7 +89,6 @@ export class CustomersController {
     @Param('customerId', ParseIntPipe) customerId: number,
     @Param('equipmentId', ParseIntPipe) equipmentId: number,
   ) {
-    return this.customersService.removeFavorite(customerId, equipmentId);
+    return this.customerService.removeFavorite(customerId, equipmentId);
   }
 }
-

@@ -4,16 +4,16 @@ import { Transform } from 'class-transformer';
 export class CreateCustomerDto {
   @IsString()
   @IsNotEmpty({ message: 'Name is required' })
-  name: string;
+  name!: string;
 
   @IsEmail({}, { message: 'Invalid email format' })
   @IsNotEmpty({ message: 'Email is required' })
-  email: string;
+  email!: string;
 
   @IsString()
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
   @IsNotEmpty({ message: 'Password is required' })
-  password: string;
+  password!: string;
 
 
 

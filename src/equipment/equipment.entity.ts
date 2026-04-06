@@ -1,29 +1,29 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany } from 'typeorm';
 import { Rental } from '../rentals/rental.entity';
-import { Customer } from '../customers/customer.entity';
+import { Customer } from '../customer/customer.entity';
 
 
 @Entity('equipments')
 export class Equipment {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
   @Column()
-  name: string
+  name!: string;
 
 
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
-  pricePerDay: number;
+  pricePerDay!: number;
 
 
   @Column({ default: true })
-  isAvailable: boolean;
+  isAvailable!: boolean;
 
 
   @OneToMany(() => Rental, (rental) => rental.equipment)
-  rentals: Rental[];
+  rentals!: Rental[];
 
 
   @ManyToMany(() => Customer, (customer) => customer.favoriteEquipments)
-  customers: Customer[];
+  customers!: Customer[];
 }

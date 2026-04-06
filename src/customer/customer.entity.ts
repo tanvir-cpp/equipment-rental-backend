@@ -1,5 +1,5 @@
 import {
-Entity, PrimaryGeneratedColumn, Column,
+  Entity, PrimaryGeneratedColumn, Column,
   OneToMany, ManyToMany, JoinTable, CreateDateColumn
 
 } from 'typeorm';
@@ -9,27 +9,34 @@ import { Equipment } from '../equipment/equipment.entity';
 @Entity()
 export class Customer {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column({ unique: true })
-  email: string;
+  email!: string;
 
   @Column()
-  password: string;
+  password!: string;
+
+  @Column({ nullable: true })
+  phone?: string;
+
+  @Column({ nullable: true })
+  address?: string;
 
   @CreateDateColumn()
-  createdAt: Date;
-//one to many relationship with rentals
+  createdAt!: Date;
+  //one to many relationship with rentals
   @OneToMany(() => Rental, rental => rental.customer)
-  rentals: Rental[];
+  rentals!: Rental[];
 
-  @ManyToMany(() => Equipment)
-  @JoinTable()
-  name:'customer_favorite_equipment',
-  joinColumn: { name: 'customer_id', referencedColumnName: 'id' },
-  inverseJoinColumn: { name: 'equipment_id', referencedColumnName: 'id' }
-  favoriteEquipment: Equipment[];
+  @ManyToMany(() => Equipment, (equipment) => equipment.customers)
+  @JoinTable({
+    name: 'customer_favorite_equipment',
+    joinColumn: { name: 'customer_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'equipment_id', referencedColumnName: 'id' },
+  })
+  favoriteEquipments!: Equipment[];
 }

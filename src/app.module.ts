@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Customer } from './customers/customer.entity';
+import { Customer } from './customer/customer.entity';
 import { Rental } from './rentals/rental.entity';
 import { Equipment } from './equipment/equipment.entity';
-import { CustomersModule } from './customers/customers.module';
+import { CustomerModule } from './customer/customer.module';
 import { RentalsModule } from './rentals/rentals.module';
 import { AuthModule } from './auth/auth.module';
 import { MailerModule } from './mailer/mailer.module';
@@ -27,7 +27,7 @@ import { MailerModule } from './mailer/mailer.module';
       }),
       inject: [ConfigService],
     }),
-    CustomersModule,
+    CustomerModule,
     RentalsModule,
     AuthModule,
     MailerModule,

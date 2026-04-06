@@ -11,7 +11,7 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 
 
 @Injectable()
-export class CustomersService {
+export class CustomerService {
   constructor(
     @InjectRepository(Customer)
     private customerRepo: Repository<Customer>,
@@ -25,7 +25,7 @@ export class CustomersService {
       select: ['id', 'name', 'email', 'phone', 'address', 'createdAt'],
     });
   }
-// search one customer by id
+  // search one customer by id
 
 
 
@@ -54,7 +54,7 @@ export class CustomersService {
     }
     return customer;
   }
-// customer fav equipments many to many relationship with equipment, show all favorite equipments of a customer
+  // customer fav equipments many to many relationship with equipment, show all favorite equipments of a customer
 
 
   async findWithFavorites(id: number): Promise<Customer> {
@@ -68,9 +68,7 @@ export class CustomersService {
     return customer;
   }
 
-  // customer full update(Put
-  )
-
+  // customer full update (Put)
 
   async update(id: number, dto: UpdateCustomerDto): Promise<Customer> {
     const customer = await this.findOne(id);
@@ -85,6 +83,9 @@ export class CustomersService {
 
 
   async partialUpdate(id: number, dto: UpdateCustomerDto): Promise<Customer> {
+    if (dto.password) {
+      dto.password = await bcrypt.hash(dto.password, 10);
+    }
     const customer = await this.customerRepo.preload({ id, ...dto });
     if (!customer) {
       throw new NotFoundException(`Customer ID ${id} পাওয়া যায়নি`);
