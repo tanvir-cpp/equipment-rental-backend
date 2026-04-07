@@ -1,84 +1,96 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
-  Delete,
-  UsePipes,
-  ValidationPipe,
-  UseInterceptors,
+  Req,
+  UnauthorizedException,
   UploadedFile,
-  ParseFilePipe,
-  MaxFileSizeValidator
-} from "@nestjs/common";
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Request } from 'express';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import {
+  CreateAdminDto,
+  LoginAdminDto,
+  UpdateAdminDto,
+  UpdateEmailDto,
+} from './admin.dto';
+import { AdminService } from './admin.service';
 
-import { FileInterceptor } from "@nestjs/platform-express";
-import { AdminService } from "./admin.service";
-import { AdminDto } from "./admin.dto";
-import  { MulterError, diskStorage } from "multer";
-
-@Controller('/admin')
+@Controller('admin')
 export class AdminController {
+  constructor(private readonly adminService: AdminService) {}
 
-  constructor(private readonly appService: AdminService) {}
-
-  @Get('/users')
-  AllUserData(): string {
-    return this.appService.userAllData();
+  @UseGuards(JwtAuthGuard)
+  @Get('users')
+  allUserData() {
+    return this.adminService.userAllData();
   }
 
-  @Get("/user/:id")
-  UserData(@Param('id', ParseIntPipe) p: number): string {
-    return this.appService.userData(p);
+  @UseGuards(JwtAuthGuard)
+  @Get('user/:id')
+  userData(@Param('id', ParseIntPipe) id: number) {
+    return this.adminService.userData(id);
   }
 
-  @Post("/createuser")
-  @UsePipes(new ValidationPipe({ whitelist: true }))
+  @Post('createuser')
   @UseInterceptors(FileInterceptor('nidImage'))
-  CreateUser(
-    @Body() body: AdminDto,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({
-            maxSize: 2 * 1024 * 1024 // 2MB
-          }),
-        ],
-      }),
-    )
-    file: Express.Multer.File
+  createUser(
+    @Body() body: CreateAdminDto,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.appService.createUser(body, file);
+    return this.adminService.createUser(body, file);
   }
 
-  @Put('/upUser')
-  UpdateUser(@Body() body: any) {
-    return this.appService.upUser(body);
-  }
-
-  @Get("/profile")
-  GetProfile() {
-    return this.appService.getAdminProfile();
-  }
-
-  @Post("/login")
-  Login(@Body() body: any) {
-    return this.appService.loginAdmin(body);
-  }
-
-  @Put("/update-email/:id")
-  UpdateEmail(
+  @UseGuards(JwtAuthGuard)
+  @Put('upUser/:id')
+  updateUser(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: any
+    @Body() body: UpdateAdminDto,
   ) {
-    return this.appService.updateEmail(id, body);
+    return this.adminService.upUser(id, body);
   }
 
-  @Delete("/delete/:id")
-  DeleteUser(@Param('id', ParseIntPipe) id: number) {
-    return this.appService.deleteUser(id);
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@Req() req: Request & { user?: any }) {
+    if (!req.user) {
+      throw new UnauthorizedException();
+    }
+    return this.adminService.getAdminProfile(req.user);
+  }
+
+  @Post('login')
+  login(@Body() body: LoginAdminDto) {
+    return this.adminService.loginAdmin(body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('update-email/:id')
+  updateEmail(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateEmailDto,
+  ) {
+    return this.adminService.updateEmail(id, body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('deactivate/:id')
+  deactivateUser(@Param('id', ParseIntPipe) id: number) {
+    return this.adminService.deactivateUser(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('delete/:id')
+  deleteUser(@Param('id', ParseIntPipe) id: number) {
+    return this.adminService.deleteUser(id);
   }
 }

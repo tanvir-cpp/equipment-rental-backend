@@ -1,20 +1,27 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AdminModule } from './admin/admin.module';
-import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
+import { AuthModule } from './auth/auth.module';
+import { EquipmentModule } from './equipment/equipment.module';
 
 @Module({
-  imports: [AdminModule,TypeOrmModule.forRoot(
-{ type: 'postgres',
-host: 'localhost',
-port: 5432,
-username: 'postgres',
-password: '',
-database: 'equipment_rental',//Change to your database name
-autoLoadEntities: true,
-synchronize: true,
-} )],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST ?? 'localhost',
+      port: Number(process.env.DB_PORT ?? 5432),
+      username: process.env.DB_USER ?? 'postgres',
+      password: process.env.DB_PASSWORD ?? 'tiger',
+      database: process.env.DB_NAME ?? 'Equipment rental',
+      autoLoadEntities: true,
+      synchronize: true,
+    }),
+    AuthModule,
+    AdminModule,
+    EquipmentModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
